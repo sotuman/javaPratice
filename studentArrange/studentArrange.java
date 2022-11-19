@@ -16,15 +16,14 @@ public class studentArrange {
             menu0();
             int choose = sc.nextInt();
             switch (choose) {
-                case 1 -> {if(login(userlist)) prepare = false;}
+                case 1 -> {if(login(userlist)) prepare = false;}//登录，成功则跳出循环进入管理系统
                 case 2 -> userlist.add(userRegister(userlist));//创建一个用户并纳入库
-                case 3 -> {if(retrieve(userlist)) System.out.println("重置密码成功");}
+                case 3 -> {if(retrieve(userlist)) System.out.println("重置密码成功");}//重置密码
                 default -> System.out.println("输入非法，请重新输入");
             }
         }
 
         //管理系统
-
         while (flag) {
             menu1();
             int input = sc.nextInt();
@@ -111,17 +110,14 @@ public class studentArrange {
         User a = new User();//创建用户对象
         //验证用户名
         System.out.println("请输入用户名");
-        while(true){
-            String input = sc.next();
-            if(seekuser(userlist,input) == -1){//检测用户名唯一性
-                if(checkUsername(input)){//检测用户名合法性
-                    a.setUsername(input);
+        while(!checkUsername(sc,a)){//检测合法性
+                if(seekuser(userlist,a.getUsername()) == -1){//检测用户名唯一性
                     break;
+                }else{
+                    System.out.println("用户名已存在，请重新输入");
+                    a.setUsername(null);
                 }
-            }else{
-                System.out.println("用户名已存在，请重新输入");
             }
-        }
         //验证密码
         System.out.println("请输入密码");
         while (true){
@@ -137,72 +133,67 @@ public class studentArrange {
         }
         //验证身份证
         System.out.println("请输入身份证号码");
-        while(true){
-            String input = sc.next();
-            int len = input.length();
-            if(len == 18) {
-                char first = input.charAt(0);
-                char end = input.charAt(len - 1);
-                if (first > '0' && first <= '9') {
-                    if ((end > '0' && end <= '9') || end == 'x' || end == 'X') {
-                        int i;
-                        for (i = 0; i < len - 2; i++) {
-                            char num = input.charAt(i);
-                            if (num >= '0' && num <= '9') {
-                                continue;
-                            } else {
-                                System.out.println("身份证号码前17位必须都是数字,请重新输入");
-                                break;
-                            }
-                        }
-                        if (i == len - 2) {
-                            a.setIdentify(input);
-                            break;
-                        }
-                    } else {
-                        System.out.println("身份证号码不合法,请重新输入");
-                    }
-                } else {
-                    System.out.println("身份证号码不合法,请重新输入");
-                }
-            }else{
-                    System.out.println("身份证号码应有18位，请重新输入");
-            }
+        while(!checkIdentity(sc, a)) {
         }
-
         //验证号码
         System.out.println("请输入电话号码");
-        while(true){
-            String input = sc.next();
-            int len = input.length();
-            if(len == 11){
-                char first = input.charAt(0);
-                if(first > '0' && first <= '9'){
-                    int i;
-                    for (i = 0; i < len-1; i++) {
-                        char num = input.charAt(i);
-                        if(num > '0' && num <= '9'){
-                            continue;
-                        }else{
-                            System.out.println("电话号码不合法,请重新输入");
-                            break;
-                        }
-                    }
-                    if(i == len-1){
-                        a.setPhone(input);
-                        break;
-                    }
-                }else{
-                    System.out.println("电话号码不合法，请重新输入");
-                }
-            }else{
-                System.out.println("电话号码应有11位，请重新输入");
-            }
+        while(!checkPhone(sc, a)){
         }
         System.out.println("注册成功");
         a.show();
         return a;
         }
+
+    private static boolean checkPhone(Scanner sc, User a) {
+        String input = sc.next();
+        int len = input.length();
+        if(len != 11){
+            System.out.println("电话号码应有11位，请重新输入");
+            return false;
+        }//检查位数
+        char first = input.charAt(0);
+        if(first <= '0' || first > '9'){
+            System.out.println("电话号码不合法，请重新输入");
+            return false;
+        }//检查合法性，开头是否大于0的数字
+        for (int i = 0; i < len-1; i++) {
+            char num = input.charAt(i);
+            if(num <= '0' || num > '9'){
+                System.out.println("电话号码不合法,请重新输入");
+                return false;
+            }
+        }//检查合法性，是否全为数字
+        a.setPhone(input);
+        return true;
+    }
+
+    private static boolean checkIdentity(Scanner sc, User a) {
+        String input = sc.next();
+        int len = input.length();
+        if(len != 18) {
+            System.out.println("身份证号码应有18位，请重新输入");
+            return false;
+        }//检查位数
+        char first = input.charAt(0);
+        char end = input.charAt(len - 1);
+        if (first <= '0' || first > '9') {
+            System.out.println("身份证号码不合法,请重新输入");
+            return false;
+        }//检查首位是不为0的数字
+        if ((end <= '0' || end > '9') && end != 'x' && end != 'X') {
+            System.out.println("身份证号码不合法,请重新输入");
+            return false;
+        }//检查末位
+        for (int i = 0; i < len - 2; i++) {
+            char num = input.charAt(i);
+            if (num < '0' || num > '9') {
+                System.out.println("身份证号码前17位必须都是数字,请重新输入");
+                return false;
+            }
+        }//检查中间是否全为数字
+        a.setIdentify(input);//全部正确则记录
+        return true;
+    }
 
     public static void seekStudent(ArrayList<student> list){
         System.out.println("请输入查询id");
@@ -303,30 +294,31 @@ public class studentArrange {
         }
     }
 
-    public static boolean checkUsername(String username){
+    public static boolean checkUsername(Scanner sc,User a){
+        String username = sc.next();
         int length = username.length();
-        if(length >=3 && length <= 15){
-            int counts = 0;
-            for (int i = 0; i < length; i++) {
-                char u = username.charAt(i);
-                if(u >= '0' && u <= '9'){
-                    continue;
-                } else if ((u >='A' && u <= 'Z') || (u >='a' && u <= 'z')) {
-                    counts++;
-                }else{
-                    System.out.println("用户名只能由字母或数字组成，请重新输入");
-                    return false;
-                }
-            }
-            if(counts <= 0){
-                System.out.println("用户名不能为纯数字，请重新输入");
-                return false;
-            }
-            return true;
-        }else{
+        if(length <3 || length > 15){
             System.out.println("用户名长度必须为3-15，请重新输入");
             return false;
         }
+        int counts = 0;
+        for (int i = 0; i < length; i++) {
+            char u = username.charAt(i);
+            if(u >= '0' && u <= '9'){
+                continue;
+            } else if ((u >='A' && u <= 'Z') || (u >='a' && u <= 'z')) {
+                counts++;
+            }else{
+                System.out.println("用户名只能由字母或数字组成，请重新输入");
+                return false;
+            }
+        }
+        if(counts <= 0){
+            System.out.println("用户名不能为纯数字，请重新输入");
+            return false;
+        }
+        a.setUsername(username);
+        return true;
     }
 
     public static int seek(ArrayList<student> list,String id){
